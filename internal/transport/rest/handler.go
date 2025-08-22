@@ -28,7 +28,7 @@ func (h *Handler) InitRouter() *mux.Router {
 	r := mux.NewRouter()
 	r.Use(loggingMiddleware)
 
-	orders := r.PathPrefix("/orders").Subrouter()
+	orders := r.PathPrefix("/order").Subrouter()
 	{
 		orders.HandleFunc("", h.createOrder).Methods(http.MethodPost)
 		orders.HandleFunc("", h.getAllOrders).Methods(http.MethodGet)
