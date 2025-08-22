@@ -28,19 +28,20 @@ func (h *Handler) InitRouter() *mux.Router {
 	r := mux.NewRouter()
 	r.Use(loggingMiddleware)
 
-	books := r.PathPrefix("/orders").Subrouter()
+	orders := r.PathPrefix("/orders").Subrouter()
 	{
-		books.HandleFunc("", h.createOrder).Methods(http.MethodPost)
-		books.HandleFunc("", h.getAllOrders).Methods(http.MethodGet)
-		books.HandleFunc("/{id:[0-9]+}", h.getOrderByID).Methods(http.MethodGet)
-		books.HandleFunc("/{id:[0-9]+}", h.deleteOrder).Methods(http.MethodDelete)
-		books.HandleFunc("/{id:[0-9]+}", h.updateOrder).Methods(http.MethodPut)
+		orders.HandleFunc("", h.createOrder).Methods(http.MethodPost)
+		orders.HandleFunc("", h.getAllOrders).Methods(http.MethodGet)
+		orders.HandleFunc("/{id}", h.getOrderByID).Methods(http.MethodGet)
+		orders.HandleFunc("/{id}", h.deleteOrder).Methods(http.MethodDelete)
+		orders.HandleFunc("/{id}", h.updateOrder).Methods(http.MethodPut)
 	}
 
 	return r
 }
 
 func (h *Handler) getOrderByID(w http.ResponseWriter, r *http.Request) {
+	log.Println("get by id call")
 	id, err := getIdFromRequest(r)
 	if err != nil {
 		log.Println("getOrderByID() error:", err)
@@ -115,16 +116,17 @@ func (h *Handler) deleteOrder(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) getAllOrders(w http.ResponseWriter, r *http.Request) {
+	log.Println("get all orders call")
 	timeout, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	books, err := h.orderService.GetAll(timeout)
+	orders, err := h.orderService.GetAll(timeout)
 	if err != nil {
 		log.Println("getAllOrders() error:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	response, err := json.Marshal(books)
+	response, err := json.Marshal(orders)
 	if err != nil {
 		log.Println("getAllOrders() error:", err)
 		w.WriteHeader(http.StatusInternalServerError)

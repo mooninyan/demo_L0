@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"demoL0/internal/domain"
+	"demoL0/internal/front"
 	"demoL0/internal/listener"
 	"demoL0/internal/mapcache"
 	"demoL0/internal/repository"
@@ -26,7 +27,7 @@ import (
 )
 
 func main() {
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
 	log.Println("SERVER STARTING", time.Now().Format(time.RFC3339))
 	// environment properties .env
 	err := godotenv.Load()
@@ -54,14 +55,14 @@ func main() {
 	liHandler := listener.NewConsumerGroupHandler(false, producer, orderService)
 
 	ghMap := make(map[string]*listener.GroupAndHandler)
-	ghMap["main"] = &listener.GroupAndHandler{
+	ghMap["main_group"] = &listener.GroupAndHandler{
 		Group:   consumerGroup,
 		Handler: liHandler,
 	}
 	if listenDlq {
 		var dlqConsumerGroup = kfk.CreateDlqConsumerGroup()
 		dlqHandler := listener.NewConsumerGroupHandler(true, producer, orderService)
-		ghMap["dlq"] = &listener.GroupAndHandler{
+		ghMap["dlq_group"] = &listener.GroupAndHandler{
 			Group:   dlqConsumerGroup,
 			Handler: dlqHandler,
 		}
@@ -81,9 +82,14 @@ func main() {
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	// init & run server
+	router := handler.InitRouter()
+	handlers := front.CreatePageHandlers()
+	for key, hand := range handlers.Handlers {
+		router.HandleFunc(key, hand)
+	}
 	srv := &http.Server{
-		Addr:    ":8080",
-		Handler: handler.InitRouter(),
+		Addr:    ":8081",
+		Handler: router,
 	}
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
@@ -91,16 +97,13 @@ func main() {
 		}
 	}()
 
-	ctxShutdownServ, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
 	<-sigs
-	// Останавливаете сервер
-	if err := srv.Shutdown(ctxShutdownServ); err != nil {
-		log.Fatalf("Ошибка при остановке сервера: %v", err)
+	log.Println("Stop signal received")
+	cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatalf("server shutdown error: %v", err)
 	}
 	wg.Wait()
 
-	log.Println("Выход из программы")
-	os.Exit(0)
+	log.Println("Exit")
 }

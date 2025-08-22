@@ -30,13 +30,13 @@ func NewListener(
 
 func (lr *Listener) Listen(wg *sync.WaitGroup) {
 	topic := os.Getenv("KAFKA_TOPIC")
-	lr.listenInternal(lr.ctx, lr.groupHandlerMap["main"], topic)
+	lr.listenInternal(lr.ctx, lr.groupHandlerMap["main_group"], topic)
 	wg.Done()
 }
 
 func (lr *Listener) ListenDlq(wg *sync.WaitGroup) {
 	topic := os.Getenv("KAFKA_DLQ_TOPIC")
-	lr.listenInternal(lr.ctx, lr.groupHandlerMap["dlq"], topic)
+	lr.listenInternal(lr.ctx, lr.groupHandlerMap["dlq_group"], topic)
 	wg.Done()
 }
 

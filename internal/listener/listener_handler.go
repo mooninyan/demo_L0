@@ -55,7 +55,7 @@ func (h *ConsumerGroupHandler) handleMessage(session sarama.ConsumerGroupSession
 	if err = h.createOrUpdateOrder(order); err != nil && !h.isDlq {
 		h.dlqProducer.SendToDlq(msg)
 	}
-	log.Println("end of message handling")
+	log.Printf("[isDlq?:%v] end of message handling", h.isDlq)
 }
 
 func (h *ConsumerGroupHandler) createOrUpdateOrder(order dto.MainOrder) (err error) {

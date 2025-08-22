@@ -42,11 +42,11 @@ func (cr *CachedOrderRepository) Create(tx *gorm.DB, ctx context.Context, order 
 
 func (cr *CachedOrderRepository) GetByID(ctx context.Context, id string) (*domain.MainOrder, error) {
 	if order, ok := cr.cache.Get(id); ok {
+		log.Printf("[cache] id: %v, order %v", id, order)
 		return order, nil
 	}
 	byID, err := cr.repo.GetByID(ctx, id)
 	if err != nil {
-		log.Println("not found", err)
 		return nil, err
 	}
 	cr.cache.Set(id, byID)

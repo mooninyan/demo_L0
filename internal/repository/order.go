@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"log"
 )
 
 type OrderRepo struct {
@@ -36,10 +37,11 @@ func (o *OrderRepo) Create(tx *gorm.DB, ctx context.Context, order *domain.MainO
 
 func (o *OrderRepo) GetByID(ctx context.Context, id string) (*domain.MainOrder, error) {
 	var order domain.MainOrder
-	result := o.db.WithContext(ctx).First(&order)
+	result := o.db.WithContext(ctx).Where("order_uid = ?", id).First(&order)
+	log.Printf("found order with id %v: %v", id, result)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("user with ID %s not found", id)
+			return nil, fmt.Errorf("order with ID %s not found", id)
 		}
 		return nil, result.Error
 	}
