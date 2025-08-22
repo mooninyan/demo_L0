@@ -56,7 +56,7 @@ func (lr *Listener) listenInternal(ctx context.Context, gh *GroupAndHandler, top
 				log.Printf("Error from consumer: %v", err)
 				return
 			}
-			// Проверяем, что не завершили работу
+
 			if ctx.Err() != nil {
 				return
 			}

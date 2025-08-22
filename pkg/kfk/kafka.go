@@ -21,14 +21,10 @@ func InitializeTopics() {
 func createTopicWithPartitions(kafkaTopic string, partitionsCount int32) {
 	kafkaHostPort := os.Getenv("KAFKA_HOST_PORT")
 
-	// Создаем конфигурацию без указания версии Kafka
 	config := sarama.NewConfig()
-	// Не задаем config.Version
 
-	// Адреса Kafka брокеров
 	brokers := []string{kafkaHostPort}
 
-	// Создаем администратора Kafka
 	admin, err := sarama.NewClusterAdmin(brokers, config)
 	if err != nil {
 		log.Fatalf("Error creating cluster admin: %v", err)
@@ -39,16 +35,12 @@ func createTopicWithPartitions(kafkaTopic string, partitionsCount int32) {
 		}
 	}()
 
-	// Проверка, существует ли топик
 	topics, err := admin.ListTopics()
 	if err != nil {
 		log.Fatalf("Error listing topics: %v", err)
 	}
 
 	if _, exists := topics[kafkaTopic]; exists {
-		// Если топик существует, увеличиваем число партиций
-
-		// Проверяем текущий уровень партиций
 		currentPartitions := topics[kafkaTopic].NumPartitions
 
 		if partitionsCount > currentPartitions {
@@ -59,7 +51,6 @@ func createTopicWithPartitions(kafkaTopic string, partitionsCount int32) {
 				fmt.Printf("Партиции топика '%s' успешно увеличены до %d\n", kafkaTopic, partitionsCount)
 			}
 		} else {
-			// Создаем топик с нужными параметрами
 			topicDetail := &sarama.TopicDetail{
 				NumPartitions:     partitionsCount,
 				ReplicationFactor: 1,
@@ -112,13 +103,11 @@ func CreateDlqConsumerGroup() sarama.ConsumerGroup {
 func CreateKafkaWriter() sarama.SyncProducer {
 	brokers := []string{os.Getenv("KAFKA_HOST_PORT")}
 
-	// Настройка конфигурации продюсера
 	config := sarama.NewConfig()
-	config.Producer.RequiredAcks = sarama.WaitForAll // Ожидание подтверждения от всех реплик
-	config.Producer.Retry.Max = 5                    // Количество повторных попыток
-	config.Producer.Return.Successes = true          // Возвращать успешные сообщения
+	config.Producer.RequiredAcks = sarama.WaitForAll
+	config.Producer.Retry.Max = 5
+	config.Producer.Return.Successes = true
 
-	// Создаем синхронный продюсер
 	producer, err := sarama.NewSyncProducer(brokers, config)
 	if err != nil {
 		log.Fatalf("Error creating producer: %v", err)

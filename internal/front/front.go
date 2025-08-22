@@ -10,7 +10,6 @@ type PageData struct {
 	Result string
 }
 
-// Структура данных для передачи в шаблон
 type HandlersHolder struct {
 	Handlers map[string]func(http.ResponseWriter, *http.Request)
 }
@@ -34,17 +33,15 @@ func CreatePageHandlers() HandlersHolder {
 
     <script>
         document.getElementById('myForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // предотвращаем стандартную отправку формы
+            e.preventDefault();
 
             const inputVal = document.getElementById('inputStr').value;
 
-            // Формируем URL для запроса
             const url = 'http://localhost:8081/order/' + encodeURIComponent(inputVal);
 
             fetch(url)
                 .then(response => {
                     if (!response.ok) {
-                        // Если статус не 200, считаем, что не найдено
                         throw new Error('не найдено');
                     }
                     return response.json();
@@ -61,12 +58,10 @@ func CreatePageHandlers() HandlersHolder {
 </html>
 `))
 
-	// Обработчик для отображения страницы
 	getHandler := func(w http.ResponseWriter, r *http.Request) {
 		tmpl.Execute(w, nil)
 	}
 
-	// Обработчик для обработки POST-запроса
 	postHandler := func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			w.WriteHeader(http.StatusMethodNotAllowed)
@@ -83,7 +78,6 @@ func CreatePageHandlers() HandlersHolder {
 			return
 		}
 
-		// Формируем ответ
 		resp := map[string]string{
 			"received": reqData.InputStr,
 			"status":   "успешно получено",

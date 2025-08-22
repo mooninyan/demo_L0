@@ -22,7 +22,6 @@ func GetDlqFlagOrDefault() bool {
 	return isDlq
 }
 
-// AtoiMust преобразует строку в число и паникует при ошибке
 func AtoiMust(s string) int {
 	n, err := strconv.Atoi(s)
 	if err != nil {
