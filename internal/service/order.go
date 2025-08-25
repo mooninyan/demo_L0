@@ -11,6 +11,14 @@ import (
 	"gorm.io/gorm"
 )
 
+type OrderServiceInterface interface {
+	Create(ctx context.Context, order *dto.MainOrder) error
+	GetByID(ctx context.Context, id string) (*dto.MainOrder, error)
+	GetAll(ctx context.Context) ([]*dto.MainOrder, error)
+	Delete(ctx context.Context, id string) error
+	Update(ctx context.Context, id string, order *dto.MainOrder) error
+}
+
 type OrderService struct {
 	db   *gorm.DB
 	repo repository.OrderRepository

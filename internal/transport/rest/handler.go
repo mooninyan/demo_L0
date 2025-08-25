@@ -15,10 +15,10 @@ import (
 )
 
 type Handler struct {
-	orderService *service.OrderService
+	orderService service.OrderServiceInterface
 }
 
-func NewHandler(service *service.OrderService) *Handler {
+func NewHandler(service service.OrderServiceInterface) *Handler {
 	return &Handler{
 		orderService: service,
 	}

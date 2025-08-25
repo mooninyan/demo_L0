@@ -39,7 +39,7 @@ func (c *MapCache[K, V]) GetAll() ([]V, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	if len(c.items) > 0 {
-		values := utils.Values(c.items)
+		values := utils.MapValues(c.items)
 		return values, true
 	}
 	return nil, false
