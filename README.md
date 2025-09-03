@@ -19,6 +19,7 @@ internal/
 ├── adapters/         # Внешние зависимости
 │   ├── repository/   # PostgreSQL репозитории
 │   ├── kafka/        # Kafka producer/consumer
+│   ├── migrations/   # SQL миграции
 │   ├── cache/        # In-memory кэш
 │   └── listener/     # Kafka listeners
 ├── transport/        # HTTP handlers
