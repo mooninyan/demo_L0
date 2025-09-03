@@ -2,27 +2,44 @@ package utils
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"testing"
 )
 
 func TestGetDlqFlagOrDefault(t *testing.T) {
-	os.Unsetenv("LISTEN_DLQ")
+	err := os.Unsetenv("LISTEN_DLQ")
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	if val := GetDlqFlagOrDefault(); val != false {
 		t.Errorf("Expected false when env variable is unset, got %v", val)
 	}
 
-	os.Setenv("LISTEN_DLQ", "true")
+	err = os.Setenv("LISTEN_DLQ", "true")
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	if val := GetDlqFlagOrDefault(); val != true {
 		t.Errorf("Expected true, got %v", val)
 	}
 
-	os.Setenv("LISTEN_DLQ", "false")
+	err = os.Setenv("LISTEN_DLQ", "false")
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	if val := GetDlqFlagOrDefault(); val != false {
 		t.Errorf("Expected false, got %v", val)
 	}
 
-	os.Setenv("LISTEN_DLQ", "notabool")
+	err = os.Setenv("LISTEN_DLQ", "notabool")
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	if val := GetDlqFlagOrDefault(); val != false {
 		t.Errorf("Expected false on invalid bool, got %v", val)
 	}
@@ -67,6 +84,7 @@ func TestWrapAndLog(t *testing.T) {
 	wrappedErr := WrapAndLog(err)
 	if wrappedErr == nil {
 		t.Errorf("Expected wrapped error, got nil")
+		return
 	}
 	if wrappedErr.Error() == "" {
 		t.Errorf("Wrapped error has empty message")

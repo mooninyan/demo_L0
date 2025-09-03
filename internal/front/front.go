@@ -3,6 +3,7 @@ package front
 import (
 	"encoding/json"
 	"html/template"
+	"log"
 	"net/http"
 )
 
@@ -59,7 +60,11 @@ func CreatePageHandlers() HandlersHolder {
 `))
 
 	getHandler := func(w http.ResponseWriter, r *http.Request) {
-		tmpl.Execute(w, nil)
+		err := tmpl.Execute(w, nil)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 	}
 
 	postHandler := func(w http.ResponseWriter, r *http.Request) {
@@ -84,7 +89,11 @@ func CreatePageHandlers() HandlersHolder {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
+		err = json.NewEncoder(w).Encode(resp)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 	}
 	holder := HandlersHolder{
 		Handlers: make(map[string]func(http.ResponseWriter, *http.Request)),
