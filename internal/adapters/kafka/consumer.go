@@ -63,18 +63,13 @@ func (c *consumer) Start(ctx context.Context) error {
 	topic := os.Getenv("KAFKA_TOPIC")
 
 	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-			if err := c.consumerGroup.Consume(ctx, []string{topic}, c.handler); err != nil {
-				log.Printf("Error from consumer: %v", err)
-				return err
-			}
+		if err := c.consumerGroup.Consume(ctx, []string{topic}, c.handler); err != nil {
+			log.Printf("Error from consumer: %v", err)
+			return err
+		}
 
-			if ctx.Err() != nil {
-				return ctx.Err()
-			}
+		if ctx.Err() != nil {
+			return ctx.Err()
 		}
 	}
 }

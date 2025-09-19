@@ -36,10 +36,17 @@ func (h *ConsumerGroupHandler) Setup(_ sarama.ConsumerGroupSession) error   { re
 func (h *ConsumerGroupHandler) Cleanup(_ sarama.ConsumerGroupSession) error { return nil }
 
 func (h *ConsumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
-	for message := range claim.Messages() {
-		h.handleMessage(session, message)
+	for {
+		select {
+		case message, ok := <-claim.Messages():
+			if !ok {
+				return nil
+			}
+			h.handleMessage(session, message)
+		case <-session.Context().Done():
+			return nil
+		}
 	}
-	return nil
 }
 
 func (h *ConsumerGroupHandler) handleMessage(session sarama.ConsumerGroupSession, msg *sarama.ConsumerMessage) {
